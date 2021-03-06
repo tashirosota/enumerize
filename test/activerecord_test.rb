@@ -195,8 +195,8 @@ describe Enumerize::ActiveRecordSupport do
     User.create!(:sex => :male)
 
     user = User.select(:id).first
-    user.attributes['role'].assert_nil
-    user.attributes['lambda_role'].assert_nil
+    expect(user.attributes['role']).must_be_nil
+    expect(user.attributes['lambda_role']).must_be_nil
   end
 
   it 'has default value with lambda' do
