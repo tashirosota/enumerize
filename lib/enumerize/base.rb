@@ -92,6 +92,9 @@ module Enumerize
       self.class.enumerized_attributes.each do |attr|
         next if attr.default_value.nil?
         begin
+          pp '_set_default_value_for_enumerized_attributes'
+          pp self
+          pp respond_to?(attr.name)
           if respond_to?(attr.name)
             attr_value = public_send(attr.name)
           else

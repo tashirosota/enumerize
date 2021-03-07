@@ -90,6 +90,10 @@ module Enumerize
     def define_methods!(mod)
       mod.module_eval <<-RUBY, __FILE__, __LINE__ + 1
         def #{name}
+          pp self.class.enumerized_attributes[:#{name}]
+          pp super
+          pp self.class.enumerized_attributes[:#{name}].find_value(super)
+
           if defined?(super)
             self.class.enumerized_attributes[:#{name}].find_value(super)
           elsif respond_to?(:read_attribute)
