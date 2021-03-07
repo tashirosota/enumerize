@@ -90,12 +90,20 @@ module Enumerize
     def define_methods!(mod)
       mod.module_eval <<-RUBY, __FILE__, __LINE__ + 1
         def #{name}
-          pp self.class.enumerized_attributes[:#{name}]
-          pp super
-          pp self.class.enumerized_attributes[:#{name}].find_value(super)
-
           if defined?(super)
-            self.class.enumerized_attributes[:#{name}].find_value(super)
+            begin
+              self.class.enumerized_attributes[:#{name}].find_value(super)
+            rescue NoMethodError
+              if respond_to?(:read_attribute)
+                self.class.enumerized_attributes[:#{name}].find_value(read_attribute(:#{name}))
+              else
+                if defined?(@#{name})
+                  self.class.enumerized_attributes[:#{name}].find_value(@#{name})
+                else
+                  @#{name} = nil
+                end
+              end
+            end
           elsif respond_to?(:read_attribute)
             self.class.enumerized_attributes[:#{name}].find_value(read_attribute(:#{name}))
           else
@@ -112,7 +120,15 @@ module Enumerize
           allowed_value_or_nil = allowed_value_or_nil.value unless allowed_value_or_nil.nil?
 
           if defined?(super)
-            super allowed_value_or_nil
+            begin
+              super allowed_value_or_nil
+            rescue
+              if respond_to?(:write_attribute, true)
+                write_attribute '#{name}', allowed_value_or_nil
+              else
+                @#{name} = allowed_value_or_nil
+              end
+            end
           elsif respond_to?(:write_attribute, true)
             write_attribute '#{name}', allowed_value_or_nil
           else
@@ -137,9 +153,13 @@ module Enumerize
     private
 
     def method_missing(method)
+      pp 'method_missing'
+      pp method
       if @value_hash.include?(method.to_s)
+        pp '@value_hash.include?(method.to_s)'
         find_value(method)
       else
+        pp 'super'
         super
       end
     end
