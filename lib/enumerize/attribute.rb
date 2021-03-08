@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-
 module Enumerize
   class Attribute
     attr_reader :klass, :name, :values, :default_value, :i18n_scope, :skip_validations_value
@@ -90,7 +89,7 @@ module Enumerize
     def define_methods!(mod)
       mod.module_eval <<-RUBY, __FILE__, __LINE__ + 1
         def #{name}
-          if defined?(super)
+          if SuperCallable.available? super
             self.class.enumerized_attributes[:#{name}].find_value(super)
           elsif respond_to?(:read_attribute)
             self.class.enumerized_attributes[:#{name}].find_value(read_attribute(:#{name}))
@@ -107,7 +106,7 @@ module Enumerize
           allowed_value_or_nil = self.class.enumerized_attributes[:#{name}].find_value(new_value)
           allowed_value_or_nil = allowed_value_or_nil.value unless allowed_value_or_nil.nil?
 
-          if defined?(super)
+          if SuperCallable.available? super
             super allowed_value_or_nil
           elsif respond_to?(:write_attribute, true)
             write_attribute '#{name}', allowed_value_or_nil
@@ -142,6 +141,7 @@ module Enumerize
   end
 
   module Multiple
+    include SuperCallable
     def find_default_value(value)
       if value.respond_to?(:call)
         value
@@ -154,7 +154,7 @@ module Enumerize
       mod.module_eval <<-RUBY, __FILE__, __LINE__ + 1
         def #{name}
           unless defined?(@_#{name}_enumerized_set)
-            if defined?(super)
+            if SuperCallable.available? super
               self.#{name} = super
             elsif respond_to?(:read_attribute)
               self.#{name} = read_attribute(:#{name})
@@ -174,7 +174,7 @@ module Enumerize
           @_#{name}_enumerized_set = Enumerize::Set.new(self, self.class.enumerized_attributes[:#{name}], values)
           raw_values = self.#{name}.values.map(&:value)
 
-          if defined?(super)
+          if SuperCallable.available? super
             super raw_values
           elsif respond_to?(:write_attribute, true)
             write_attribute '#{name}', raw_values

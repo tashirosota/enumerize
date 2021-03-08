@@ -14,6 +14,7 @@ module Enumerize
   autoload :Predicates,   'enumerize/predicates'
   autoload :Predicatable, 'enumerize/predicatable'
   autoload :Utils,        'enumerize/utils'
+  autoload :SuperCallable,        'enumerize/super_callable'
   autoload :ModuleAttributes, 'enumerize/module_attributes'
 
   autoload :ActiveModelAttributesSupport, 'enumerize/activemodel'
