@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-
 module Enumerize
   module Base
     def self.included(base)
@@ -59,7 +58,7 @@ module Enumerize
 
       if _enumerized_values_for_validation.has_key?(key)
         _enumerized_values_for_validation[key]
-      elsif defined?(super)
+      elsif SuperCallable.available? super
         super
       else
         send(key)
