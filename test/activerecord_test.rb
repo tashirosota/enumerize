@@ -329,6 +329,13 @@ describe Enumerize::ActiveRecordSupport do
     user = User.new(interests: [:music, :dancing])
     user.save!
     user.interests.must_equal %w(music dancing)
+    pp '======Multiple option check======'
+    pp ActiveRecord::Base.connection.select_all(
+      "
+        SELECT interests
+        FROM users
+      "
+    )
     User.find(user.id).interests.must_equal %w(music dancing)
   end
 
